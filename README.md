@@ -2,7 +2,7 @@
 
 SchoolHealth is a web-based school health management platform for students, families, and school health teams. It is designed to keep student health records organized, make checkup results easier to follow, and support coordinated care over time.
 
-> **Project status:** In development. The features and technology choices below come from the project brief. Setup instructions will be updated as application code and configuration are added to this repository.
+> **Project status:** In development. The frontend foundation is in place; backend services and the planned product features are still being developed.
 
 ## Product goals
 
@@ -35,17 +35,15 @@ SchoolHealth is a web-based school health management platform for students, fami
 | Development and demo | Docker Compose |
 | Version control | Git, GitHub |
 
-## Planned repository structure
+## Repository structure
 
 ```text
 .
 ├── frontend/                 # React + TypeScript application
-│   └── tests/                # Playwright tests and configuration
-├── backend/                  # FastAPI application
-│   └── tests/                # pytest tests
+│   └── src/                  # Application source
+├── backend/                  # FastAPI application (planned)
 ├── AI_RULES.md               # Safe AI use for development and product features
 ├── CONTRIBUTING.md           # Branch, commit, and pull request process
-├── .gitignore
 └── .github/
     ├── PULL_REQUEST_TEMPLATE.md
     └── workflows/ci.yml      # GitHub Actions workflow
@@ -60,7 +58,27 @@ git clone https://github.com/Phuthanh123456/School-Health-AI-System.git
 cd School-Health-AI-System
 ```
 
-Frontend and backend installation steps will be added when their application directories, dependency files, and environment configuration are available.
+### Frontend
+
+The frontend uses Vite, React, TypeScript, and Tailwind CSS. Install dependencies and start the development server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Vite prints the local URL (usually `http://localhost:5173`). Frontend checks can also be run from the `frontend` directory:
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
+
+### Backend
+
+Backend setup instructions will be added when the FastAPI application and its dependency files are available.
 
 ## Testing and CI
 
@@ -70,7 +88,7 @@ The GitHub Actions workflow at [`.github/workflows/ci.yml`](.github/workflows/ci
 - Install frontend dependencies with `npm ci`, then run the `lint`, `typecheck`, and `build` scripts defined in `frontend/package.json`.
 - Install Chromium and run Playwright tests when a `frontend/playwright.config.*` file and test files under `frontend/tests/` are present.
 
-Once the application code is in place, run the corresponding checks locally:
+Run the corresponding checks locally:
 
 ```bash
 # Backend
@@ -88,7 +106,7 @@ npm run build
 npx playwright test
 ```
 
-Playwright should have a `webServer` configuration to start the application before running end-to-end tests. CI skips backend or frontend checks until their required files and tests are added.
+Playwright should have a `webServer` configuration to start the application before running end-to-end tests. Backend checks will run once the backend dependency file and tests are added.
 
 ## Team workflow and data safety
 

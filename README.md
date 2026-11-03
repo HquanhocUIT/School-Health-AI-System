@@ -1,61 +1,66 @@
 # SchoolHealth AI System
 
-Hệ thống quản lý sức khỏe học đường, giúp nhà trường và gia đình lưu trữ hồ sơ sức khỏe học sinh, theo dõi kết quả khám định kỳ và phối hợp chăm sóc liên tục.
+SchoolHealth is a web-based school health management platform for students, families, and school health teams. It is designed to keep student health records organized, make checkup results easier to follow, and support coordinated care over time.
 
-> Dự án đang trong quá trình phát triển. Các chức năng và công nghệ bên dưới dựa trên project brief; hướng dẫn chạy sẽ được cập nhật khi mã nguồn được thêm vào repository.
+> **Project status:** In development. The frontend foundation is in place; backend services and the planned product features are still being developed.
 
-## Mục tiêu
+## Product goals
 
-- Tập trung hồ sơ sức khỏe và lịch sử khám của học sinh qua các năm học.
-- Hỗ trợ nhập hồ sơ hiện có từ Excel, kiểm tra dữ liệu và phát hiện bản ghi trùng.
-- Theo dõi kết quả khám, xu hướng sức khỏe và các trường hợp cần được chú ý.
-- Giúp nhân viên y tế trường học, phụ huynh và học sinh phối hợp dựa trên quyền truy cập phù hợp.
-- Đưa ra giải thích sức khỏe và gợi ý dinh dưỡng bằng AI; quyết định chuyên môn thuộc về nhân viên y tế.
+- Keep student health records and checkup history together across school years.
+- Import existing Excel records with validation and duplicate detection.
+- Track checkup results, health trends, and cases that need follow-up.
+- Help school health staff, families, and students coordinate care with role-based access.
+- Use AI to explain health information and suggest nutrition improvements, with clinical decisions left to healthcare professionals.
 
-## Nhóm chức năng dự kiến
+## Planned features
 
-1. Đăng nhập, phân quyền theo vai trò và liên kết tài khoản phụ huynh – học sinh.
-2. Hồ sơ học sinh, tiền sử sức khỏe và thói quen dinh dưỡng.
-3. Nhập và chuyển đổi dữ liệu Excel, có ánh xạ cột, kiểm tra và xem trước trước khi xác nhận.
-4. Quản lý đợt khám, kết quả khám và ghi chú theo dõi.
-5. Dashboard và báo cáo theo học sinh, lớp, năm học và đợt khám.
-6. Hỗ trợ giải thích sức khỏe và gợi ý dinh dưỡng bằng Ollama.
+1. User login, role-based permissions, and parent–student account linking.
+2. Student profiles with health history and nutrition habits.
+3. Excel import and migration with column mapping, validation, duplicate detection, and a preview before confirmation.
+4. School checkup management, examination results, and follow-up notes.
+5. Dashboards and reports by student, class, school year, and checkup session.
+6. AI-assisted health explanations and nutrition suggestions using Ollama.
 
-## Công nghệ dự kiến
+## Proposed technology stack
 
-| Thành phần | Công nghệ |
+| Area | Technology |
 | --- | --- |
 | Frontend | React, TypeScript, Tailwind CSS |
-| Biểu đồ | Recharts |
+| Charts | Recharts |
 | Backend API | Python, FastAPI |
-| Cơ sở dữ liệu | PostgreSQL |
-| Nhập Excel | pandas, openpyxl |
-| AI | Ollama |
-| Kiểm thử | pytest, Playwright |
-| Môi trường phát triển/demo | Docker Compose |
-| Quản lý mã nguồn | Git, GitHub |
+| Database | PostgreSQL |
+| Excel import | pandas, openpyxl |
+| AI integration | Ollama |
+| Testing | pytest, Playwright |
+| Development and demo | Docker Compose |
+| Version control | Git, GitHub |
 
-## Cấu trúc mã nguồn dự kiến
+## Repository structure
 
 ```text
 .
-├── frontend/                 # React + TypeScript
-├── backend/                  # FastAPI
-│   └── tests/                # pytest
-├── frontend/tests/           # Playwright; cấu hình tại frontend/playwright.config.*
-└── .github/workflows/ci.yml  # CI cho kiểm tra và kiểm thử
+├── frontend/                 # React + TypeScript application
+│   └── src/                  # Application source
+├── backend/                  # FastAPI application (planned)
+├── AI_RULES.md               # Safe AI use for development and product features
+├── CONTRIBUTING.md           # Branch, commit, and pull request process
+└── .github/
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── workflows/ci.yml      # GitHub Actions workflow
 ```
 
-## Bắt đầu
+## Getting started
 
-Clone repository:
+Clone the repository:
 
 ```bash
 git clone https://github.com/Phuthanh123456/School-Health-AI-System.git
 cd School-Health-AI-System
 ```
 
-Frontend hiện dùng Vite, React, TypeScript và Tailwind CSS. Để chạy giao diện:
+### Frontend
+
+The frontend uses Vite, React, TypeScript, and Tailwind CSS. Install dependencies and start the development server:
 
 ```bash
 cd frontend
@@ -63,17 +68,27 @@ npm install
 npm run dev
 ```
 
-Các lệnh `npm run lint`, `npm run typecheck` và `npm run build` cũng có thể chạy trong thư mục `frontend`. Hướng dẫn backend sẽ được bổ sung khi phần backend được đưa vào repository.
+Vite prints the local URL (usually `http://localhost:5173`). Frontend checks can also be run from the `frontend` directory:
 
-## Kiểm thử và CI
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
 
-GitHub Actions chạy khi có push, pull request hoặc chạy thủ công. Workflow tại [`.github/workflows/ci.yml`](.github/workflows/ci.yml) sẽ:
+### Backend
 
-- Cài dependency backend từ `backend/requirements.txt` và chạy `pytest` khi có test trong `backend/tests/`.
-- Cài dependency frontend bằng `npm ci`, sau đó chạy các script `lint`, `typecheck` và `build` nếu được khai báo trong `frontend/package.json`.
-- Cài Chromium và chạy Playwright khi có cấu hình `frontend/playwright.config.*` cùng test trong `frontend/tests/`.
+Backend setup instructions will be added when the FastAPI application and its dependency files are available.
 
-Các lệnh kiểm thử tương ứng:
+## Testing and CI
+
+The GitHub Actions workflow at [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch. It is prepared to:
+
+- Install backend dependencies from `backend/requirements.txt` and run pytest tests in `backend/tests/`.
+- Install frontend dependencies with `npm ci`, then run the `lint`, `typecheck`, and `build` scripts defined in `frontend/package.json`.
+- Install Chromium and run Playwright tests when a `frontend/playwright.config.*` file and test files under `frontend/tests/` are present.
+
+Run the corresponding checks locally:
 
 ```bash
 # Backend
@@ -87,16 +102,18 @@ npm run lint
 npm run typecheck
 npm run build
 
-# End-to-end tests (sau khi cấu hình Playwright)
+# End-to-end tests (after Playwright is configured)
 npx playwright test
 ```
 
-Playwright cần có cấu hình `webServer` để khởi động ứng dụng trước khi chạy test. CI bỏ qua phần frontend/backend chưa được thêm vào repository; khi các thư mục và test tương ứng xuất hiện, các bước sẽ tự chạy.
+Playwright should have a `webServer` configuration to start the application before running end-to-end tests. Backend checks will run once the backend dependency file and tests are added.
 
-## Quy ước cộng tác
+## Team workflow and data safety
 
-- Tạo feature branch cho từng hạng mục và mở pull request trước khi merge vào nhánh chính.
-- Cần ít nhất một thành viên review pull request trước khi merge.
-- Cập nhật tiến độ và blocker trên Jira theo workflow `To Do → In Progress → In Review → Done`.
-- Chỉ dùng dữ liệu học sinh giả lập trong phát triển và demo. Không đưa mật khẩu, API key hoặc dữ liệu sức khỏe thật lên repository.
-- Nội dung AI chỉ có tính hỗ trợ, không thay thế chẩn đoán hay quyết định của chuyên gia y tế.
+- Use Jira as the source of truth for Sprint goals, stories, acceptance criteria, status, and blockers.
+- Work on small, short-lived branches tied to a Jira item; open a pull request and merge completed increments into `main` frequently.
+- Require passing CI and at least one teammate review before merging; mark Jira work Done only after acceptance criteria and the Definition of Done are met.
+- Use synthetic student records for development and demos. Do not commit passwords, API keys, or real student health data.
+- Treat AI output as informational support only; it does not replace a healthcare professional's diagnosis or decisions.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the repository workflow and [`AI_RULES.md`](AI_RULES.md) for detailed AI-use rules.

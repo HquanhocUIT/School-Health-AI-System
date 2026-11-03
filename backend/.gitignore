@@ -1,0 +1,46 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local environment files and secrets (keep the safe template in Git)
+.env
+.env.*
+!.env.example
+
+# Python bytecode and caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Test, coverage, and static-analysis output
+.pytest_cache/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pyright/
+.coverage
+.coverage.*
+htmlcov/
+
+# Build and package output
+dist/
+build/
+*.egg-info/
+pip-wheel-metadata/
+
+# Local logs, temporary files, and editor backups
+*.log
+*.tmp
+*.bak
+*~
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

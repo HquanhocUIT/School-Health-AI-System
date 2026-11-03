@@ -43,7 +43,12 @@ SchoolHealth is a web-based school health management platform for students, fami
 │   └── tests/                # Playwright tests and configuration
 ├── backend/                  # FastAPI application
 │   └── tests/                # pytest tests
-└── .github/workflows/ci.yml  # GitHub Actions workflow
+├── AI_RULES.md               # Safe AI use for development and product features
+├── CONTRIBUTING.md           # Branch, commit, and pull request process
+├── .gitignore
+└── .github/
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── workflows/ci.yml      # GitHub Actions workflow
 ```
 
 ## Getting started
@@ -92,3 +97,5 @@ Playwright should have a `webServer` configuration to start the application befo
 - Keep Jira tasks current using `To Do → In Progress → In Review → Done`.
 - Use synthetic student records for development and demos. Do not commit passwords, API keys, or real student health data.
 - Treat AI output as informational support only; it does not replace a healthcare professional's diagnosis or decisions.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the repository workflow and [`AI_RULES.md`](AI_RULES.md) for detailed AI-use rules.

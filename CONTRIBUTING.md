@@ -1,49 +1,58 @@
 # Contributing
 
-This repository follows the team's Jira workflow and review agreement. The `main` branch is the shared integration branch.
+This team uses Scrum with Jira as the source of truth for the product backlog, sprint goal, acceptance criteria, and work status. GitHub supports the team's short feedback loop: small changes, continuous integration, teammate review, and frequent integration into `main`.
+
+## Start from Jira
+
+1. Pick up a Jira story or task selected for the current Sprint.
+2. Confirm its goal and acceptance criteria with the Product Owner or team when anything is unclear.
+3. Keep implementation within the agreed scope. Record scope changes in Jira and re-plan with the team instead of quietly expanding the pull request.
+4. Break work into reviewable increments. Keep Jira status and blockers visible as work progresses.
 
 ## Branches
 
-Create a short-lived branch for each Jira work item. Use one of these prefixes:
+Create one short-lived branch from the latest `main` for a Jira story or focused task. Include its Jira key in the branch name:
 
 ```text
-feature/<short-description>
-fix/<short-description>
-docs/<short-description>
-chore/<short-description>
+feature/SCRUM-123-student-profile
+fix/SCRUM-124-excel-validation
+docs/SCRUM-125-ai-rules
+chore/SCRUM-126-ci-maintenance
 ```
 
-Examples: `feature/student-profile`, `fix/excel-validation`, `docs/ai-rules`.
-
-Do not commit directly to `main`. Keep each branch focused and sync it with the latest `main` before merging.
+Do not commit directly to `main` or keep long-lived sprint branches. Merge completed increments promptly; if a story is unfinished, keep it open in Jira and do not mark it Done.
 
 ## Commits
 
-Use a short, action-oriented commit message. A conventional prefix is recommended:
+Use short, action-oriented messages with a conventional prefix and Jira key:
 
 ```text
-feat: add student health profile
-fix: reject duplicate Excel rows
-docs: document AI use rules
-chore: configure CI workflow
+feat(SCRUM-123): add student health profile
+fix(SCRUM-124): reject duplicate Excel rows
+docs(SCRUM-125): clarify AI use rules
+chore(SCRUM-126): configure CI workflow
 ```
 
 ## Pull requests
 
-1. Open a pull request from your branch to `main` and include the related Jira key, such as `SCRUM-15`.
-2. Explain what changed and how you checked it. Link screenshots for visible UI changes when useful.
+Open a pull request from the short-lived branch to `main`. Keep it focused on the Jira item and small enough for a teammate to review in one sitting.
+
+Before merging:
+
+1. Link the Jira item and explain how the change meets its acceptance criteria.
+2. Confirm the Definition of Done is met: implementation is complete, relevant checks pass, documentation is updated where needed, and no secrets or real student health data are included.
 3. Wait for CI to pass and at least one teammate to approve the pull request.
-4. Resolve review comments and conversations before merging.
-5. Merge only work that meets the team's Definition of Done.
+4. Resolve review conversations and incorporate feedback before merging.
+5. Prefer squash merging so each Jira item lands as a clear, traceable change; delete the short-lived branch after merge.
 
-Use the pull request template and check the data safety and AI-use items where relevant. See [`AI_RULES.md`](AI_RULES.md) for project-specific AI guidance.
+See the [pull request template](.github/PULL_REQUEST_TEMPLATE.md) and [`AI_RULES.md`](AI_RULES.md). After merge, update Jira to reflect the actual state of the work. Only move an item to Done when its acceptance criteria and the team's Definition of Done are met.
 
-## Checks
+## CI and local checks
 
-The GitHub Actions workflow runs the available backend and frontend checks on pushes and pull requests. Run the relevant checks locally before requesting review. Current commands are documented in the [README](README.md); they become runnable as the application code and dependencies are added.
+GitHub Actions runs the available backend and frontend checks on pushes and pull requests. Run the relevant checks locally before requesting review. The current commands are documented in the [README](README.md); they become runnable as application code and dependencies are added.
 
 ## Data and secrets
 
-- Use synthetic student records only in development and demos.
+- Use synthetic student records only in development, tests, screenshots, and demos.
 - Never commit real health data, passwords, API keys, tokens, or local environment files.
-- Do not include sensitive information in commit messages, issue references, logs, or screenshots.
+- Do not include sensitive information in Jira comments, commit messages, logs, or screenshots.

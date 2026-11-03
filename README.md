@@ -92,9 +92,9 @@ Playwright should have a `webServer` configuration to start the application befo
 
 ## Team workflow and data safety
 
-- Create a feature branch for each work item and open a pull request before merging into the main branch.
-- Ask at least one teammate to review each pull request before merging.
-- Keep Jira tasks current using `To Do → In Progress → In Review → Done`.
+- Use Jira as the source of truth for Sprint goals, stories, acceptance criteria, status, and blockers.
+- Work on small, short-lived branches tied to a Jira item; open a pull request and merge completed increments into `main` frequently.
+- Require passing CI and at least one teammate review before merging; mark Jira work Done only after acceptance criteria and the Definition of Done are met.
 - Use synthetic student records for development and demos. Do not commit passwords, API keys, or real student health data.
 - Treat AI output as informational support only; it does not replace a healthcare professional's diagnosis or decisions.
 

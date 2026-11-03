@@ -1,19 +1,26 @@
-## Summary
+## Jira work item
 
-<!-- What does this pull request change? -->
+<!-- Link the Jira story or task, for example SCRUM-123. -->
 
-## Jira issue
+## Goal and scope
 
-<!-- Add a Jira key or link, for example SCRUM-15. -->
+<!-- What user or team need does this change address? Note any scope changes agreed in Jira. -->
 
-## Checks performed
+## Acceptance criteria
 
-- [ ] Relevant tests/checks pass, or the reason they could not run is explained.
+<!-- List the story's acceptance criteria and how this PR satisfies them. -->
+
+- [ ]
+
+## Validation and Definition of Done
+
+- [ ] Relevant tests and CI checks pass, or any unavailable check is explained.
+- [ ] The Jira acceptance criteria are met.
 - [ ] Documentation is updated where needed.
-
-## Review checklist
-
-- [ ] This change is focused and ready for teammate review.
 - [ ] No real student health data, credentials, or secrets are included.
-- [ ] AI-assisted code or content has been reviewed and verified.
-- [ ] If this changes an AI feature, safety behavior and clinical boundaries have been checked.
+
+## Team review
+
+- [ ] This PR is focused and ready for review.
+- [ ] At least one teammate has reviewed it; all conversations are resolved before merge.
+- [ ] AI-assisted code/content is identified and reviewed; AI feature safeguards are checked where relevant.

@@ -6,7 +6,7 @@ These rules apply to AI-assisted development and to AI features in SchoolHealth.
 
 - Use synthetic student records in development, tests, screenshots, and demos.
 - Never paste real student names, contact details, health records, checkup results, or other identifying information into an AI prompt.
-- Do not send confidential project data, credentials, API keys, access tokens, or private repository content to an AI service.
+- Never send real student health data to an AI tool. Do not send credentials, API keys, access tokens, or restricted project information to an external AI service unless the team has approved that service for the data.
 - Treat local models and AI tools as untrusted unless the team has explicitly reviewed their data handling. Running a model locally does not make real student data safe to use.
 - Keep secrets in local environment files or an approved secret store. Commit only placeholder examples such as `.env.example`.
 
@@ -37,3 +37,9 @@ These rules apply to AI-assisted development and to AI features in SchoolHealth.
 - A team member remains responsible for code or content submitted for review, even when AI helped create it.
 - Mention significant AI assistance in the pull request when it affects implementation or user-facing behavior, so reviewers know what to examine.
 - Report unsafe or misleading output to the team and fix or disable the affected behavior before release.
+
+## 6. Keep product decisions with the Scrum team
+
+- AI may help draft a story, acceptance criteria, or implementation options, but the Product Owner and team decide product value, priority, scope, estimates, and the Definition of Done.
+- Do not let AI independently commit the team to Sprint work, change Jira status, accept a story, approve a pull request, or mark work Done.
+- Keep AI-assisted work small enough to review against the Jira story and its agreed acceptance criteria.

@@ -55,7 +55,15 @@ git clone https://github.com/Phuthanh123456/School-Health-AI-System.git
 cd School-Health-AI-System
 ```
 
-Các bước cài đặt và chạy frontend/backend sẽ được bổ sung khi các thư mục ứng dụng, dependency files và cấu hình môi trường được đưa vào repository.
+Frontend hiện dùng Vite, React, TypeScript và Tailwind CSS. Để chạy giao diện:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Các lệnh `npm run lint`, `npm run typecheck` và `npm run build` cũng có thể chạy trong thư mục `frontend`. Hướng dẫn backend sẽ được bổ sung khi phần backend được đưa vào repository.
 
 ## Kiểm thử và CI
 

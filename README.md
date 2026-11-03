@@ -80,6 +80,19 @@ npm run build
 
 Backend setup instructions will be added when the FastAPI application and its dependency files are available.
 
+### Start PostgreSQL locally
+
+From the repository root with Docker running, copy the sample environment file if you do not already have a local configuration.
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d --wait db
+docker compose ps db
+'SELECT 1;' | docker compose exec -T db sh -c 'PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -U $POSTGRES_USER -d $POSTGRES_DB -v ON_ERROR_STOP=1'
+```
+
+Expect the service to report `healthy` and the query to return `1`. The database is reachable from other Compose services at `db:5432`. The named volume preserves data when the container is recreated. The sample credentials are for local development.
+
 ## Testing and CI
 
 The GitHub Actions workflow at [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch. It is prepared to:

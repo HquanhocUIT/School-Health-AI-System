@@ -2,8 +2,12 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
+
+from app.api.auth import get_authenticated_user
+from app.schemas.auth import AuthenticatedUser as LoginUser
 
 
 @dataclass(frozen=True)
@@ -14,17 +18,11 @@ class AuthenticatedUser:
     role: str
 
 
-def get_current_user() -> AuthenticatedUser:
-    """
-    Điểm kết nối với SCRUM-32.
-
-    Hiện tại luôn từ chối vì hệ thống login chưa được tích hợp.
-    Khi login hoàn thành, thay bằng dependency xác thực thật của nhóm.
-    """
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authentication is not available yet",
-    )
+def get_current_user(
+    login_user: Annotated[LoginUser, Depends(get_authenticated_user)],
+) -> AuthenticatedUser:
+    """Expose the signed-in user's ID and role to access-control guards."""
+    return AuthenticatedUser(id=login_user.id, role=login_user.role)
 
 
 def require_role(*allowed_roles: str) -> Callable:

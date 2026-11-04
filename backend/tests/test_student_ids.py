@@ -21,7 +21,7 @@ def client():
         schema = "student_id_test_" + uuid4().hex
         engine = create_engine(
             application_engine.url,
-            execution_options={"schema_translate_map": {"public": schema}},
+            execution_options={"schema_translate_map": {"schoolhealth_demo": schema}},
         )
         with engine.begin() as connection:
             connection.execute(CreateSchema(schema))
@@ -30,7 +30,7 @@ def client():
             "sqlite://",
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
-            execution_options={"schema_translate_map": {"public": None}},
+            execution_options={"schema_translate_map": {"schoolhealth_demo": None}},
         )
 
     tables = [Student.__table__, HealthProfile.__table__]

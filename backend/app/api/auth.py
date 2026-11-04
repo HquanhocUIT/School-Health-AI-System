@@ -45,7 +45,7 @@ def login(
         text(
             """
             SELECT id, email, role, password_hash
-            FROM public.accounts
+            FROM schoolhealth_demo.accounts
             WHERE lower(email) = :email
             LIMIT 1
             """

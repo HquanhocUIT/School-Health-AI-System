@@ -6,7 +6,7 @@ from app.database import Base
 
 class Student(Base):
     __tablename__ = "students"
-    __table_args__ = {"schema": "public"}
+    __table_args__ = {"schema": "schoolhealth_demo"}
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
     full_name: Mapped[str] = mapped_column(Text)
@@ -15,10 +15,10 @@ class Student(Base):
 
 class HealthProfile(Base):
     __tablename__ = "health_profiles"
-    __table_args__ = {"schema": "public"}
+    __table_args__ = {"schema": "schoolhealth_demo"}
 
     student_id: Mapped[str] = mapped_column(
-        Text, ForeignKey("public.students.id"), primary_key=True
+        Text, ForeignKey("schoolhealth_demo.students.id"), primary_key=True
     )
     allergies: Mapped[str | None] = mapped_column(Text)
     medical_notes: Mapped[str | None] = mapped_column(Text)

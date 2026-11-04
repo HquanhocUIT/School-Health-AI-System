@@ -3,8 +3,12 @@ from typing import Any
 
 import bcrypt
 import pytest
+from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
+from app.api.auth import router as auth_router
+from app.api.guards import AuthenticatedUser as GuardUser, require_role
+from app.api.parent_guard import require_parent_student_link
 from app.config import settings
 from app.database import get_db
 from app.main import app
@@ -20,13 +24,13 @@ DEMO_USERS = {
 
 
 class FakeResult:
-    def __init__(self, row: dict[str, str] | None) -> None:
+    def __init__(self, row: Any | None) -> None:
         self.row = row
 
     def mappings(self) -> "FakeResult":
         return self
 
-    def first(self) -> dict[str, str] | None:
+    def first(self) -> Any | None:
         return self.row
 
 
@@ -34,7 +38,13 @@ class FakeSession:
     def __init__(self, accounts: dict[str, dict[str, str]]) -> None:
         self.accounts = accounts
 
-    def execute(self, _statement: Any, parameters: dict[str, str]) -> FakeResult:
+    def execute(self, statement: Any, parameters: dict[str, str]) -> FakeResult:
+        if "schoolhealth_demo.parent_students" in str(statement):
+            linked = (parameters["parent_id"], parameters["student_id"]) in {
+                ("parent", "DEMO-001"),
+                ("parent", "DEMO-017"),
+            }
+            return FakeResult((1,) if linked else None)
         return FakeResult(self.accounts.get(parameters["email"]))
 
 
@@ -58,6 +68,35 @@ def auth_client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
             app.dependency_overrides.pop(get_db, None)
         else:
             app.dependency_overrides[get_db] = previous_override
+
+
+@pytest.fixture
+def auth_guard_client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+    """Exercise a real login token through the role guard dependency."""
+    monkeypatch.setattr(settings, "auth_token_secret", TEST_SECRET)
+    password_hash = bcrypt.hashpw(TEST_PASSWORD.encode(), bcrypt.gensalt(rounds=4)).decode()
+    accounts = {
+        email: {"id": account_id, "email": email, "role": role, "password_hash": password_hash}
+        for email, (account_id, role) in DEMO_USERS.items()
+    }
+    fake_session = FakeSession(accounts)
+    guard_app = FastAPI()
+    guard_app.include_router(auth_router)
+
+    @guard_app.get("/nurse-only")
+    def nurse_only(user: GuardUser = Depends(require_role("nurse"))) -> dict[str, str]:
+        return {"user_id": user.id, "role": user.role}
+
+    @guard_app.get("/students/{student_id}/results")
+    def parent_results(
+        student_id: str,
+        user: GuardUser = Depends(require_parent_student_link),
+    ) -> dict[str, str]:
+        return {"student_id": student_id, "parent_id": user.id}
+
+    guard_app.dependency_overrides[get_db] = lambda: fake_session
+    with TestClient(guard_app) as client:
+        yield client
 
 
 @pytest.mark.parametrize(("email", "expected_role"), DEMO_USERS.items())
@@ -117,3 +156,48 @@ def test_authenticated_endpoint_rejects_missing_or_invalid_token(
 
     assert response.status_code == 401
     assert response.headers["www-authenticate"] == "Bearer"
+
+
+def test_login_token_is_consumed_by_role_guard(auth_guard_client: TestClient) -> None:
+    login = auth_guard_client.post(
+        "/auth/login",
+        json={"email": "nurse@schoolhealth.example", "password": TEST_PASSWORD},
+    )
+    assert login.status_code == 200
+    token = login.json()["access_token"]
+
+    allowed = auth_guard_client.get(
+        "/nurse-only",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert allowed.status_code == 200
+    assert allowed.json() == {"user_id": "nurse", "role": "nurse"}
+
+    admin_login = auth_guard_client.post(
+        "/auth/login",
+        json={"email": "admin@schoolhealth.example", "password": TEST_PASSWORD},
+    )
+    denied = auth_guard_client.get(
+        "/nurse-only",
+        headers={"Authorization": f"Bearer {admin_login.json()['access_token']}"},
+    )
+    assert denied.status_code == 403
+
+    unauthenticated = auth_guard_client.get("/nurse-only")
+    assert unauthenticated.status_code == 401
+
+
+def test_parent_login_token_is_limited_to_linked_students(auth_guard_client: TestClient) -> None:
+    login = auth_guard_client.post(
+        "/auth/login",
+        json={"email": "parent@schoolhealth.example", "password": TEST_PASSWORD},
+    )
+    assert login.status_code == 200
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+
+    allowed = auth_guard_client.get("/students/DEMO-001/results", headers=headers)
+    assert allowed.status_code == 200
+    assert allowed.json() == {"student_id": "DEMO-001", "parent_id": "parent"}
+
+    denied = auth_guard_client.get("/students/DEMO-002/results", headers=headers)
+    assert denied.status_code == 403

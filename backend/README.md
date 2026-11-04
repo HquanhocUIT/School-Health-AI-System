@@ -68,8 +68,8 @@ bcrypt hashes through PostgreSQL's `pgcrypto` extension. The parent is linked
 to students `DEMO-001` and `DEMO-017`. Rerunning the seed fills in missing demo
 rows and preserves existing rows, including profile edits and password hashes.
 
-The seed writes to the application's PostgreSQL `public` schema.
-`GET /students` reads `public.students` and returns each student's `id`,
+The seed writes to the application's PostgreSQL `schoolhealth_demo` schema.
+`GET /students` reads `schoolhealth_demo.students` and returns each student's `id`,
 `full_name`, and `class_name`, ordered by ID.
 `POST /students` creates a student and health profile in one transaction. Send
 `id`, `full_name`, and `class_name` as nonblank strings. You can also send
@@ -81,9 +81,8 @@ New student IDs must contain 1–50 ASCII letters, digits, hyphens, or underscor
 `PATCH /students/{student_id}` accepts changes to `full_name`, `class_name`,
 `allergies`, and `medical_notes`. Omitted fields keep their values. Send
 `null` or a blank string to clear allergies or notes. An unknown ID returns 404.
-If you ran the old seed into `schoolhealth_demo`, rerun the command above to
-populate `public`. This creates a new sample dataset in `public` and leaves the
-previous demo schema available for reference.
+If you ran an older seed into `public`, rerun the command above to populate
+`schoolhealth_demo` with the shared demo accounts and sample records.
 
 ## Demo login API
 

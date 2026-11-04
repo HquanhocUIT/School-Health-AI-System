@@ -6,6 +6,9 @@ from pydantic import BaseModel, ConfigDict, StringConstraints, field_validator
 StudentName = Annotated[str, StringConstraints(min_length=1, max_length=200)]
 ClassName = Annotated[str, StringConstraints(min_length=1, max_length=50)]
 HealthText = Annotated[str, StringConstraints(max_length=2000)]
+StudentId = Annotated[str, StringConstraints(
+    min_length=1, max_length=50, pattern=r"^[A-Za-z0-9_-]+$"
+)]
 
 
 class StudentSummary(BaseModel):
@@ -19,7 +22,7 @@ class StudentSummary(BaseModel):
 class StudentCreate(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
-    id: Annotated[str, StringConstraints(min_length=1, max_length=50)]
+    id: StudentId
     full_name: StudentName
     class_name: ClassName
     allergies: HealthText | None = None

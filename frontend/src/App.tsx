@@ -1,5 +1,6 @@
 import LoginPage from './LoginPage'
 import NurseStudents from './NurseStudents'
+import { roleLandingPaths, signIn, signOut, type UserRole } from './auth'
 
 const features = [
   {
@@ -34,6 +35,43 @@ function FeatureIcon({ name }: { name: string }) {
 
 function ArrowIcon() {
   return <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="ml-2 size-4"><path d="M4 10h11M10 5l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+}
+
+const roleLandingContent: Record<Exclude<UserRole, 'nurse'>, { title: string; description: string }> = {
+  admin: {
+    title: 'Administrator workspace',
+    description: 'Your role-specific dashboard will appear here as its features are added.',
+  },
+  parent: {
+    title: 'Parent workspace',
+    description: 'Your role-specific health overview will appear here as its features are added.',
+  },
+}
+
+function RoleLandingPage({ role }: { role: Exclude<UserRole, 'nurse'> }) {
+  const content = roleLandingContent[role]
+
+  function handleSignOut() {
+    signOut()
+    window.location.assign('/')
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12 text-foreground">
+      <section className="w-full max-w-xl rounded-3xl border border-border bg-white p-8 shadow-sm sm:p-10">
+        <p className="text-sm font-semibold uppercase tracking-wide text-primary-strong">SchoolHealth</p>
+        <h1 className="mt-4 font-display text-3xl font-bold tracking-tight">{content.title}</h1>
+        <p className="mt-3 leading-7 text-muted">{content.description}</p>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="mt-8 inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-on-primary transition hover:bg-sky-mid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          Sign out
+        </button>
+      </section>
+    </main>
+  )
 }
 
 function LandingPage() {
@@ -168,8 +206,19 @@ function LandingPage() {
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '')
 
-  if (pathname === '/login') return <LoginPage />
+  if (pathname === '/login') {
+    return (
+      <LoginPage
+        onLogin={async (credentials) => {
+          const user = await signIn(credentials)
+          window.location.assign(roleLandingPaths[user.role])
+        }}
+      />
+    )
+  }
   if (pathname === '/nurse') return <NurseStudents />
+  if (pathname === '/admin') return <RoleLandingPage role="admin" />
+  if (pathname === '/parent') return <RoleLandingPage role="parent" />
 
   return <LandingPage />
 }

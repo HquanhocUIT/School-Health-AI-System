@@ -18,7 +18,7 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Set `DATABASE_URL` in `.env` when Dev A provides the PostgreSQL connection details. The expected SQLAlchemy driver format is `postgresql+psycopg://...`. No credentials are included in this repository.
+Set `DATABASE_URL` in `.env` when Dev A provides the PostgreSQL connection details. The expected SQLAlchemy driver format is `postgresql+psycopg://...`. Set `AUTH_TOKEN_SECRET` to a unique random value of at least 32 characters; generate one with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. No real credentials or signing secrets belong in the repository.
 
 ## Run the API
 
@@ -26,7 +26,7 @@ Set `DATABASE_URL` in `.env` when Dev A provides the PostgreSQL connection detai
 uvicorn app.main:app --reload
 ```
 
-The API listens on `http://127.0.0.1:8000`. Swagger UI is at `/docs`; the basic routes are `GET /` and `GET /health`.
+The API listens on `http://127.0.0.1:8000`. Swagger UI is at `/docs`. Routes include `GET /`, `GET /health`, `POST /auth/login`, `GET /auth/me`, and the student profile endpoints.
 
 Set `CORS_ORIGINS` to a comma-separated list of frontend origins. The defaults allow the usual local development origins on ports 3000 and 5173.
 
@@ -36,7 +36,7 @@ Set `CORS_ORIGINS` to a comma-separated list of frontend origins. The defaults a
 python -m pytest
 ```
 
-The basic endpoint tests use FastAPI's test client and never connect to PostgreSQL.
+The endpoint tests use FastAPI's test client and test authentication against synthetic account fixtures; they do not require a PostgreSQL connection.
 
 ## Seed TASK-01 demo data
 
@@ -84,6 +84,20 @@ New student IDs must contain 1–50 ASCII letters, digits, hyphens, or underscor
 If you ran the old seed into `schoolhealth_demo`, rerun the command above to
 populate `public`. This creates a new sample dataset in `public` and leaves the
 previous demo schema available for reference.
+
+## Demo login API
+
+`POST /auth/login` accepts `email` and `password` as JSON. It checks the
+SCRUM-27 seeded account's bcrypt password hash and returns a signed bearer token
+with the user's `id`, `email`, and lowercase `role` (`admin`, `nurse`, or
+`parent`). Invalid credentials return HTTP 401 without issuing a token.
+`GET /auth/me` requires a valid bearer token and returns the authenticated user.
+Tokens expire after one hour. See
+[`../docs/us-1.1-auth-contract.md`](../docs/us-1.1-auth-contract.md) for the
+request/response contract and role landing routes.
+
+The `/auth/me` endpoint is the protected authentication check for this story.
+Authorization for student health data remains in SCRUM-20.
 
 ## Docker integration
 

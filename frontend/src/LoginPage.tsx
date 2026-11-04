@@ -1,12 +1,8 @@
 import { useState, type FormEvent } from 'react'
-
-type LoginCredentials = {
-  email: string
-  password: string
-}
+import { AuthError, type LoginCredentials } from './auth'
 
 type LoginPageProps = {
-  onLogin?: (credentials: LoginCredentials) => Promise<void>
+  onLogin: (credentials: LoginCredentials) => Promise<void>
 }
 
 type InvalidFields = {
@@ -64,16 +60,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
 
     setInvalidFields({ email: false, password: false })
-    if (!onLogin) {
-      setError('Sign in is unavailable because the authentication service is not connected yet.')
-      return
-    }
-
     setIsLoading(true)
     try {
       await onLogin({ email: normalizedEmail, password })
-    } catch {
-      setError('Email or password is incorrect. Please try again.')
+    } catch (error) {
+      setError(error instanceof AuthError ? error.message : 'Unable to sign in right now. Please try again later.')
     } finally {
       setIsLoading(false)
     }

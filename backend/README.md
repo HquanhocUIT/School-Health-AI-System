@@ -38,6 +38,41 @@ python -m pytest
 
 The basic endpoint tests use FastAPI's test client and never connect to PostgreSQL.
 
+## Seed TASK-01 demo data
+
+From the repository root, configure the local Compose `.env` and start PostgreSQL
+with `docker compose up -d --wait db`. In PowerShell, set
+`$env:SCHOOLHEALTH_DEMO_PASSWORD` to a demo-only password of at least eight
+characters and at most 72 UTF-8 bytes. Set `$OutputEncoding = [Text.UTF8Encoding]::new($false)`
+to preserve Vietnamese names when piping SQL.
+
+Run the seed with one command:
+
+```powershell
+Get-Content -Raw -Encoding UTF8 backend/scripts/seed_demo.sql | docker compose exec -T -e SCHOOLHEALTH_DEMO_PASSWORD db sh -c 'psql -X -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+```
+
+The script creates 24 fictional students across classes 6A1, 6A2, and 7A1,
+24 health profiles, two checkup sessions, and 48 result rows. Results include
+completed, follow-up, pending, and absent statuses. Pending and absent rows have
+no measurements so dashboards can distinguish them from completed screenings.
+
+| Role | Demo account |
+| --- | --- |
+| Admin | `admin@schoolhealth.example` |
+| Nurse | `nurse@schoolhealth.example` |
+| Parent | `parent@schoolhealth.example` |
+
+The initial accounts share the demo password supplied on the first run and store
+bcrypt hashes through PostgreSQL's `pgcrypto` extension. The parent is linked
+to students `DEMO-001` and `DEMO-017`. Rerunning the seed fills in missing demo
+rows and preserves existing rows, including profile edits and password hashes.
+
+The tables live in the `schoolhealth_demo` schema. The seed provides the data for
+the login, parent visibility, Nurse entry, and dashboard stories. Those flows
+still need application models and endpoints wired to the demo tables, or seed
+data migrated into the team's application schema once it is agreed.
+
 ## Docker integration
 
 Build the API image from this directory with `docker build -t schoolhealth-api .`. The image starts Uvicorn on port 8000 and is ready to be referenced as the API service's `build` context in the project Docker Compose configuration. Pass `DATABASE_URL` and, if needed, `CORS_ORIGINS` to that service through its environment.

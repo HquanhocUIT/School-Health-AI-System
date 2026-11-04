@@ -9,6 +9,7 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy.schema import CreateSchema, DropSchema
 
 from app.database import Base, engine as application_engine, get_db
+from app.api.guards import AuthenticatedUser, get_current_user
 from app.main import app
 from app.models.student import HealthProfile, Student
 
@@ -41,11 +42,13 @@ def client():
             yield db
 
     app.dependency_overrides[get_db] = test_db
+    app.dependency_overrides[get_current_user] = lambda: AuthenticatedUser(id="nurse", role="nurse")
     try:
         with TestClient(app) as client:
             yield client
     finally:
         app.dependency_overrides.pop(get_db, None)
+        app.dependency_overrides.pop(get_current_user, None)
         if schema:
             with engine.begin() as connection:
                 connection.execute(DropSchema(schema, cascade=True))

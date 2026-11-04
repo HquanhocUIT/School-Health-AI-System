@@ -96,7 +96,35 @@ Tokens expire after one hour. See
 request/response contract and role landing routes.
 
 The `/auth/me` endpoint is the protected authentication check for this story.
-Authorization for student health data remains in SCRUM-20.
+Student profile and checkup endpoints require a valid Nurse bearer token; other
+roles receive HTTP 403. The UI restores and verifies the existing login session
+before it loads these endpoints.
+
+## Nurse workspace API
+
+All routes below require the authenticated `nurse` role. Send the login token as
+`Authorization: Bearer <access_token>`.
+
+- `GET /students?q=<term>` lists up to 200 students and searches ID, name, and
+  class. `POST /students`, `GET /students/{student_id}`, and
+  `PATCH /students/{student_id}` manage available student and health-profile
+  fields (`id`, `full_name`, `class_name`, `allergies`, `medical_notes`).
+- `GET /checkup-sessions` lists seeded sessions.
+- `GET /checkup-sessions/{session_id}/results?q=<term>` returns a session roster
+  with each student's profile, examination status, measurements, vision, notes,
+  and calculated BMI. Students without an examination row appear as `pending`.
+- `PUT /checkup-sessions/{session_id}/results/{student_id}` creates or updates
+  an examination row. The body accepts `status` (`completed`, `follow_up`,
+  `pending`, `absent`), `height_cm`, `weight_kg`, `vision_left`, `vision_right`,
+  and `notes`.
+- `DELETE /checkup-sessions/{session_id}/results/{student_id}` removes an
+  incorrect examination row. It does not delete the student; the student returns
+  to the roster as pending.
+
+BMI is returned to one decimal place when both positive metric measurements are
+present. The API does not apply clinical thresholds or produce diagnoses. The
+shared student model does not currently provide gender, date of birth, age, or
+guardian contact fields, so the nurse UI does not invent or display them.
 
 ## Docker integration
 

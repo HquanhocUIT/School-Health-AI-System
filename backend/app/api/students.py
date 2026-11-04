@@ -1,16 +1,19 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.api.guards import require_role
 from app.models.student import HealthProfile, Student
 from app.schemas.student import StudentCreate, StudentProfile, StudentSummary, StudentUpdate
 
 
-router = APIRouter(prefix="/students", tags=["students"])
+router = APIRouter(
+    prefix="/students", tags=["students"], dependencies=[Depends(require_role("nurse"))]
+)
 
 
 def read_profile(db: Session, student_id: str) -> StudentProfile:
@@ -26,8 +29,15 @@ def read_profile(db: Session, student_id: str) -> StudentProfile:
 
 
 @router.get("")
-def list_students(db: Annotated[Session, Depends(get_db)]) -> list[StudentSummary]:
-    students = db.scalars(select(Student).order_by(Student.id))
+def list_students(
+    db: Annotated[Session, Depends(get_db)],
+    q: Annotated[str | None, Query(max_length=100)] = None,
+) -> list[StudentSummary]:
+    query = select(Student)
+    if q and q.strip():
+        term = f"%{q.strip()}%"
+        query = query.where(or_(Student.id.ilike(term), Student.full_name.ilike(term), Student.class_name.ilike(term)))
+    students = db.scalars(query.order_by(Student.id).limit(200))
     return [StudentSummary.model_validate(student) for student in students]
 
 

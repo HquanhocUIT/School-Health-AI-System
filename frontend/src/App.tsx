@@ -1,4 +1,5 @@
 import LoginPage from './LoginPage'
+import NurseStudents from './NurseStudents'
 
 const features = [
   {
@@ -165,7 +166,12 @@ function LandingPage() {
 }
 
 function App() {
-  return window.location.pathname === '/login' ? <LoginPage /> : <LandingPage />
+  const pathname = window.location.pathname.replace(/\/$/, '')
+
+  if (pathname === '/login') return <LoginPage />
+  if (pathname === '/nurse') return <NurseStudents />
+
+  return <LandingPage />
 }
 
 export default App

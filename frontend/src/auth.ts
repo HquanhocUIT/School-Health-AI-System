@@ -13,6 +13,16 @@ type LoginResponse = {
   user: AuthenticatedUser
 }
 
+type StoredSession = {
+  accessToken: string
+  expiresAt: number
+}
+
+export type RestoredSession = {
+  user: AuthenticatedUser
+  expiresAt: number
+}
+
 export type LoginCredentials = {
   email: string
   password: string
@@ -38,6 +48,27 @@ function isUserRole(value: unknown): value is UserRole {
   return value === 'admin' || value === 'nurse' || value === 'parent'
 }
 
+function isAuthenticatedUser(value: unknown): value is AuthenticatedUser {
+  if (!value || typeof value !== 'object') return false
+  const user = value as Partial<AuthenticatedUser>
+  return (
+    typeof user.id === 'string' &&
+    typeof user.email === 'string' &&
+    isUserRole(user.role)
+  )
+}
+
+function isStoredSession(value: unknown): value is StoredSession {
+  if (!value || typeof value !== 'object') return false
+  const session = value as Partial<StoredSession>
+  return (
+    typeof session.accessToken === 'string' &&
+    session.accessToken.length > 0 &&
+    typeof session.expiresAt === 'number' &&
+    Number.isFinite(session.expiresAt)
+  )
+}
+
 function isLoginResponse(value: unknown): value is LoginResponse {
   if (!value || typeof value !== 'object') return false
   const response = value as Partial<LoginResponse>
@@ -45,15 +76,12 @@ function isLoginResponse(value: unknown): value is LoginResponse {
     typeof response.access_token === 'string' &&
     response.token_type === 'bearer' &&
     typeof response.expires_in === 'number' &&
-    Boolean(response.user) &&
-    typeof response.user?.id === 'string' &&
-    typeof response.user.email === 'string' &&
-    isUserRole(response.user.role)
+    isAuthenticatedUser(response.user)
   )
 }
 
 export async function signIn(credentials: LoginCredentials): Promise<AuthenticatedUser> {
-  sessionStorage.removeItem(sessionKey)
+  signOut()
 
   let response: Response
   try {
@@ -98,6 +126,71 @@ export async function signIn(credentials: LoginCredentials): Promise<Authenticat
   return result.user
 }
 
+export async function restoreSession(): Promise<RestoredSession | null> {
+  let storedValue: string | null
+  try {
+    storedValue = sessionStorage.getItem(sessionKey)
+  } catch {
+    signOut()
+    return null
+  }
+
+  if (!storedValue) return null
+
+  let parsedSession: unknown
+  try {
+    parsedSession = JSON.parse(storedValue)
+  } catch {
+    signOut()
+    return null
+  }
+
+  if (!isStoredSession(parsedSession) || parsedSession.expiresAt <= Date.now()) {
+    signOut()
+    return null
+  }
+
+  let response: Response
+  try {
+    response = await fetch(`${api}/auth/me`, {
+      headers: { Authorization: `Bearer ${parsedSession.accessToken}` },
+    })
+  } catch {
+    throw new AuthError('Cannot connect to the SchoolHealth sign-in service. Please try again.')
+  }
+
+  if (response.status === 401) {
+    signOut()
+    return null
+  }
+  if (!response.ok) {
+    throw new AuthError('Unable to verify your session right now. Please try again.')
+  }
+
+  let user: unknown
+  try {
+    user = await response.json()
+  } catch {
+    signOut()
+    return null
+  }
+
+  if (!isAuthenticatedUser(user)) {
+    signOut()
+    return null
+  }
+  if (parsedSession.expiresAt <= Date.now()) {
+    signOut()
+    return null
+  }
+
+  return { user, expiresAt: parsedSession.expiresAt }
+}
+
 export function signOut(): void {
-  sessionStorage.removeItem(sessionKey)
+  try {
+    sessionStorage.removeItem(sessionKey)
+  } catch {
+    // The session may be unavailable in restricted browser contexts.
+  }
 }

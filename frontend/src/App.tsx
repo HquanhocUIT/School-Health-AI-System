@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react'
 import LoginPage from './LoginPage'
 import NurseStudents from './NurseStudents'
-import { roleLandingPaths, signIn, signOut, type UserRole } from './auth'
+import { restoreSession, roleLandingPaths, signIn, signOut, type UserRole } from './auth'
 
 const features = [
   {
@@ -203,6 +204,88 @@ function LandingPage() {
   )
 }
 
+function ProtectedRoute({ role }: { role: UserRole }) {
+  const [status, setStatus] = useState<'checking' | 'authenticated' | 'unavailable'>('checking')
+  const [retry, setRetry] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    let expiryTimer: number | undefined
+
+    restoreSession()
+      .then((session) => {
+        if (cancelled) return
+        if (!session) {
+          window.location.replace('/login')
+          return
+        }
+        if (session.expiresAt <= Date.now()) {
+          signOut()
+          window.location.replace('/login')
+          return
+        }
+        if (session.user.role !== role) {
+          window.location.replace(roleLandingPaths[session.user.role])
+          return
+        }
+
+        setStatus('authenticated')
+        expiryTimer = window.setTimeout(() => {
+          signOut()
+          window.location.replace('/login')
+        }, Math.max(0, session.expiresAt - Date.now()))
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('unavailable')
+      })
+
+    return () => {
+      cancelled = true
+      if (expiryTimer !== undefined) window.clearTimeout(expiryTimer)
+    }
+  }, [retry, role])
+
+  if (status === 'checking') {
+    return (
+      <main className="grid min-h-screen place-items-center bg-background px-6 text-foreground" role="status">
+        <p className="text-sm text-muted">Verifying your session…</p>
+      </main>
+    )
+  }
+
+  if (status === 'unavailable') {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12 text-foreground">
+        <section className="w-full max-w-lg rounded-3xl border border-border bg-white p-8 shadow-sm">
+          <h1 className="font-display text-2xl font-bold tracking-tight">Session could not be verified</h1>
+          <p className="mt-3 leading-7 text-muted">
+            Check your connection to SchoolHealth and try again. Your session will stay unavailable until it can be verified.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setStatus('checking')
+                setRetry((attempt) => attempt + 1)
+              }}
+              className="min-h-11 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-on-primary hover:bg-sky-mid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              Try again
+            </button>
+            <a href="/login" className="inline-flex min-h-11 items-center rounded-full border border-border px-5 py-3 text-sm font-semibold hover:border-primary hover:text-primary">
+              Go to sign in
+            </a>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  if (status !== 'authenticated') return null
+  if (role === 'nurse') return <NurseStudents />
+  return <RoleLandingPage role={role} />
+}
+
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '')
 
@@ -216,9 +299,9 @@ function App() {
       />
     )
   }
-  if (pathname === '/nurse') return <NurseStudents />
-  if (pathname === '/admin') return <RoleLandingPage role="admin" />
-  if (pathname === '/parent') return <RoleLandingPage role="parent" />
+  if (pathname === '/nurse') return <ProtectedRoute role="nurse" />
+  if (pathname === '/admin') return <ProtectedRoute role="admin" />
+  if (pathname === '/parent') return <ProtectedRoute role="parent" />
 
   return <LandingPage />
 }

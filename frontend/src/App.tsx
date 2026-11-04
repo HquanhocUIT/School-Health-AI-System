@@ -1,3 +1,5 @@
+import NurseStudents from './NurseStudents'
+
 const features = [
   {
     number: '01',
@@ -34,6 +36,10 @@ function ArrowIcon() {
 }
 
 function App() {
+  if (window.location.pathname.replace(/\/$/, '') === '/nurse') {
+    return <NurseStudents />
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 sm:px-10">
@@ -49,8 +55,8 @@ function App() {
           <span className="hidden rounded-full border border-border bg-white/80 px-4 py-2 text-xs font-semibold tracking-wide text-muted sm:block">
             SỨC KHỎE HỌC ĐƯỜNG, ĐƯỢC KẾT NỐI
           </span>
-          <a href="#features" className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold transition duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-            Bắt đầu khám phá <ArrowIcon />
+          <a href="/nurse" className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold transition duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+            Màn hình điều dưỡng <ArrowIcon />
           </a>
         </header>
 

@@ -14,9 +14,8 @@ END $$;
 \endif
 
 BEGIN;
-CREATE SCHEMA IF NOT EXISTS schoolhealth_demo;
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-SET LOCAL search_path = schoolhealth_demo, public;
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+SET LOCAL search_path = public;
 
 CREATE TABLE IF NOT EXISTS students (
     id text PRIMARY KEY,

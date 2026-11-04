@@ -68,13 +68,28 @@ bcrypt hashes through PostgreSQL's `pgcrypto` extension. The parent is linked
 to students `DEMO-001` and `DEMO-017`. Rerunning the seed fills in missing demo
 rows and preserves existing rows, including profile edits and password hashes.
 
-The tables live in the `schoolhealth_demo` schema. The seed provides the data for
-the login, parent visibility, Nurse entry, and dashboard stories. Those flows
-still need application models and endpoints wired to the demo tables, or seed
-data migrated into the team's application schema once it is agreed.
+The seed writes to the application's PostgreSQL `public` schema.
+`GET /students` reads `public.students` and returns each student's `id`,
+`full_name`, and `class_name`, ordered by ID.
+`POST /students` creates a student and health profile in one transaction. Send
+`id`, `full_name`, and `class_name` as nonblank strings. You can also send
+`allergies` and `medical_notes`. The API returns HTTP 201 on success, 409 if the
+student ID already exists, and 422 if the request fails validation.
+`GET /students/{student_id}` returns the student's basic profile.
+`PATCH /students/{student_id}` accepts changes to `full_name`, `class_name`,
+`allergies`, and `medical_notes`. Omitted fields keep their values. Send
+`null` or a blank string to clear allergies or notes. An unknown ID returns 404.
+If you ran the old seed into `schoolhealth_demo`, rerun the command above to
+populate `public`. This creates a new sample dataset in `public` and leaves the
+previous demo schema available for reference.
 
 ## Docker integration
 
-Build the API image from this directory with `docker build -t schoolhealth-api .`. The image starts Uvicorn on port 8000 and is ready to be referenced as the API service's `build` context in the project Docker Compose configuration. Pass `DATABASE_URL` and, if needed, `CORS_ORIGINS` to that service through its environment.
+After seeding, run `docker compose up -d --build api` from the repository root
+and open `http://127.0.0.1:8000/students`. Compose connects the API to its
+`db` service with the PostgreSQL settings from the root `.env`. For a separate
+deployment, set `DATABASE_URL` explicitly.
 
-Dev A should provide the PostgreSQL hostname/service name reachable from the API container, port, database name, username, password, and any required SSL options. The API reads the resulting connection string only from `DATABASE_URL`; it does not create the database or a PostgreSQL container.
+To try the Nurse screen, run `npm ci` and `npm run dev` from `frontend`, then
+open `http://localhost:5173/nurse`. The screen uses the local API on port 8000.
+Set `VITE_API_URL` before starting Vite if the API is running elsewhere.

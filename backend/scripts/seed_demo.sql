@@ -55,9 +55,14 @@ CREATE TABLE IF NOT EXISTS checkup_results (
     status text NOT NULL CHECK (status IN ('completed', 'follow_up', 'pending', 'absent')),
     height_cm numeric(5, 1),
     weight_kg numeric(4, 1),
+    vision_left text,
+    vision_right text,
     notes text,
     PRIMARY KEY (session_id, student_id)
 );
+
+ALTER TABLE checkup_results ADD COLUMN IF NOT EXISTS vision_left text;
+ALTER TABLE checkup_results ADD COLUMN IF NOT EXISTS vision_right text;
 
 INSERT INTO students (id, full_name, class_name)
 SELECT 'DEMO-' || lpad(position::text, 3, '0'), full_name, '6A1'

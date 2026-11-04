@@ -52,7 +52,7 @@ Run the seed with one command:
 Get-Content -Raw -Encoding UTF8 backend/scripts/seed_demo.sql | docker compose exec -T -e SCHOOLHEALTH_DEMO_PASSWORD db sh -c 'psql -X -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 ```
 
-The script creates 24 fictional students across classes 6A1, 6A2, and 7A1,
+The script creates 24 fictional students in class 6A1,
 24 health profiles, two checkup sessions, and 48 result rows. Results include
 completed, follow-up, pending, and absent statuses. Pending and absent rows have
 no measurements so dashboards can distinguish them from completed screenings.

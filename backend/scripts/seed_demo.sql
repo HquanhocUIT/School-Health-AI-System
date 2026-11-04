@@ -60,8 +60,7 @@ CREATE TABLE IF NOT EXISTS checkup_results (
 );
 
 INSERT INTO students (id, full_name, class_name)
-SELECT 'DEMO-' || lpad(position::text, 3, '0'), full_name,
-       (ARRAY['6A1', '6A2', '7A1'])[1 + (position - 1) / 8]
+SELECT 'DEMO-' || lpad(position::text, 3, '0'), full_name, '6A1'
 FROM unnest(ARRAY[
     'Nguyễn Minh An', 'Trần Ngọc Vy', 'Lê Gia Bảo', 'Phạm Hà My',
     'Võ Nhật Nam', 'Đặng Thảo Linh', 'Bùi Hoàng Khang', 'Đỗ Khánh Chi',
